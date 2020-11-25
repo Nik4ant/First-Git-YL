@@ -2,7 +2,8 @@ import sys
 from random import randint
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5 import uic
-from PyQt5.QtGui import QPainter, QPen, QColor
+from PyQt5.QtGui import QPainter, QColor, QBrush
+from PyQt5.QtCore import QPoint, Qt
 
 
 class Programm(QWidget):
@@ -12,29 +13,33 @@ class Programm(QWidget):
 
         # Загружаем UI
         uic.loadUi("Ui.ui", self)
-        self.is_paint = False
+        self.circles = []
 
         self.initUI()
+
+    def paintEvent(self, event):
+        painter = QPainter()
+
+        painter.begin(self)
+
+        for circle in self.circles:
+            painter.setBrush(QBrush(QColor(236, 255, 0)))
+            painter.drawEllipse(QPoint(circle["x"], circle["y"]),
+                                circle["r"], circle["r"])
+        painter.end()
 
     def initUI(self):
         self.button_add.clicked.connect(self.create_new_ball)
 
-    def paintEvent(self, event):
-        if self.is_paint:
-            painter = QPainter(self)
-            pen = QPen()
-            pen.setColor(QColor("yellow"))
-
-            painter.setPen(pen)
-            painter.begin()
-            x, y = randint(15, self.width() - 15), randint(15, self.width() - 15)
-            r = randint(40, 150)
-            painter.drawEllipse(x, y, r, r)
-            self.is_paint = False
-            painter.end()
-
     def create_new_ball(self):
-        self.is_paint = True
+        x, y = randint(0, self.width()), randint(0, self.height())  # позиция
+        r = randint(20, 55)  # радиус
+        # Добавляем круг
+        self.circles.append({
+            "x": x,
+            "y": y,
+            "r": r
+        })
         self.repaint()
 
 
